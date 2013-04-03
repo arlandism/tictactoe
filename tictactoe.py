@@ -126,7 +126,6 @@ if __name__ == "__main__":
     main_game = Game()
     human = Player('x')
     computer = AI('o')
-    main_game = Game()
     game_over = False
     while not game_over:
         space = 0
