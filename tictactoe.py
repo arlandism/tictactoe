@@ -2,7 +2,7 @@
 # Arlandis Lawrence
 
 players = {'x':'o', 'o':'x'}
-scores = {'x':-1,'o':1, None:0}
+scores = {'x':-1, 'o':1, None:0}
 
 class Game(object):
 
