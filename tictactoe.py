@@ -1,7 +1,5 @@
-# Tic Tac Toe
+# Tic Tac Toe v2
 # Arlandis Lawrence
-
-from operator import itemgetter
 
 players = {'x':'o', 'o':'x'}
 scores = {'x':-1,'o':1, None:0}
@@ -14,13 +12,16 @@ class Game(object):
   
     def __init__(self):
         """Initializes empty board"""
-        self.board = {1:None, 2:None, 3:None,
-                      4:None, 5:None, 6:None,
-                      7:None, 8:None, 9:None}
+        self.board = {}
 
     def generate_layout(self):
         """None -> list of str"""
-        layout = [self.board[i] if self.board[i] else "" for i in range(1,10)]
+
+        layout = [None] * 9
+        for x in self.board.keys():
+            layout[x - 1] = self.board[x]
+        for y in self.generate_moves() :
+            layout[y - 1] = ""
         return layout
     
     def __str__(self):
@@ -31,39 +32,29 @@ class Game(object):
         Returns list of integers that represent available moves
         on the board."""
         
-        return [x for x in self.board if not self.board[x]]
-
+        return [x for x in range(1,10) if x not in self.board]
+    
     def winner(self):
         """None -> str/None
         Returns x, o or None if there is no winner"""
+        
         for comb in self.WINNING_COMBOS:
-            if self.board[comb[0]] == self.board[comb[1]] == self.board[comb[2]]:
-                return self.board[comb[0]]
+             if (comb[0] in self.board) and (comb[1] in self.board) and (comb[2] in self.board):
+                 if self.board[comb[0]] == self.board[comb[1]] == self.board[comb[2]]:
+                    return self.board[comb[0]]
         return None
 
     def game_over(self):
         """None -> bool"""
+
         if not self.winner():
-            for val in self.board:
-                if self.board[val] == None:
-                    return False
+            return range(1,10) == self.board.keys()
         return True
 
     def reset(self, move):
         """Erases a move"""
-        self.board[move] = None
 
-class Player(object):
-    
-    def __init__(self,token):
-        self.token = token
-
-    def move(self, space, game):
-        """Assumes space is empty since
-        player is only allowed to make
-        available moves during game execution."""
-        
-        game.board[space] = self.token
+        del self.board[move]
 
 class AI(object):
     
@@ -77,9 +68,8 @@ class AI(object):
         # Only move if the game's not over
         if game.generate_moves():            
             moves = self.get_moves(game)
-
-            #moves is a sorted list with best available move in a tuple at the end
-            space = moves[-1][0]
+            #moves is a sorted list with best available move in a list at the end
+            space = moves[-1][1]
             game.board[space] = self.token
             print "Computer moves to %s" % space
 
@@ -95,9 +85,7 @@ class AI(object):
             if current_game.game_over():
                 return scores[current_game.winner()]
             else:
-                values = []
-                for move in possible_moves:
-                    values.append(self.minimax(move, current_game, players[token]))
+                values = [self.minimax(move, current_game, players[token]) for move in possible_moves]
                 if token == 'o':
                     return min(values)
                 else:
@@ -106,40 +94,66 @@ class AI(object):
             current_game.reset(space)
 
     def get_moves(self, game):
-        """Game -> list of tup
+        """Game -> list of lists
            Calls minimax algorithm to generate
            a list of moves and their corresponding
            score based on the algorithm. Ranks move list
            according to the algorithmic score and
-           returns that move list with tuple containing
-           (best_move, best_score) at the end of the list"""
+           returns that move list with list containing
+           [best_score, best_move] at the end of the list"""
         
-        move_list = []
-        for move in game.generate_moves():
-            move_list.append((move, self.minimax(move, game, 'o')))
+        move_list = [[self.minimax(move, game, self.token), move] for move in game.generate_moves()]
+        return sorted(move_list)
 
-        # using itemgetter as key allows 'sorted' function to sort list according to the 
-        # item located at the [1] index in each item in list (in this case tuples)
-        return sorted(move_list, key=itemgetter(1))
-    
-if __name__ == "__main__":
+def capture_input(statement, options, response=0):
+    """str, iterable of ints -> int
+       Assumes 0 is outside range of 
+       options"""
+
+    while response not in options:
+        try:
+            response = input(statement)
+        except:
+            continue
+    return response
+
+def human_move(game, token):
+    """Game object -> None"""
+    possible_moves = game.generate_moves()
+    print "Possible moves are %s" % possible_moves
+    game.board[capture_input("Please select a move: ", possible_moves)] = token
+
+def game_play(x):
     main_game = Game()
-    human = Player('x')
+    human = 'x'
     computer = AI('o')
     game_over = False
     while not game_over:
-        space = 0
-        possible_moves = main_game.generate_moves()
-        while space not in possible_moves:
-            print "Possible moves are %s\n" % possible_moves
-            space = input("Please select a move: ")
-        human.move(space, main_game)
-        computer.move(main_game)
+        if x == 1:
+            human_move(main_game, human)
+            print main_game
+            if main_game.winner() or main_game.game_over():
+                break
+
+            computer.move(main_game)
+        else:
+            computer.move(main_game)
+            print main_game
+            # Game ends with this move
+            if main_game.winner() or main_game.game_over():
+                break
+
+            human_move(main_game, human)
+
         print main_game
         game_over = main_game.game_over()
-    print "Game Over"
     winner = main_game.winner()
+    
     if winner:
         print "%s wins" % winner
     else:
         print "It's a draw"
+        
+if __name__ == "__main__":
+    print "Welcome to Tic Tac Toe"
+    game_play(capture_input("Would you like to go first or second: [1,2] ", (1,2)))
