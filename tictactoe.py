@@ -105,13 +105,13 @@ class AI(object):
         move_list = [[self.minimax(move, game, self.token), move] for move in game.generate_moves()]
         return sorted(move_list)
 
-def capture_input(statement, options, response=0):
-    """str, iterable of ints -> int
+def capture_input(statement, options, response=0, data_type=int):
+    """str, iterable, data type -> data type
        Assumes 0 is outside range of 
        options"""
     while response not in options:
         try:
-            response = int(raw_input(statement))
+            response = data_type(raw_input(statement))
         except:
             continue
     return response
@@ -159,8 +159,6 @@ if __name__ == "__main__":
     while play:
         game_play(capture_input("Would you like to go first or second: [1,2] ", (1,2)))
         play_dict = {"y": True, "n": False}
-        key = ''
-        while key not in play_dict:
-            key = raw_input("Would you like to play again? y/n: ")
-            play = play_dict[key]
+        key = capture_input("Would you like to play again: (y/n) ", ("y","n"), data_type=str)
+        play = play_dict[key]
     
