@@ -2,7 +2,7 @@
 # Arlandis Lawrence
 
 players = {'x':'o', 'o':'x'}
-scores = {'x':-1, 'o':1, None:0}
+scores = {'x':-1,'o':1, None:0}
 
 class Game(object):
 
@@ -72,7 +72,7 @@ class AI(object):
             space = moves[-1][1]
             game.board[space] = self.token
             print "Computer moves to %s" % space
-
+    
     def minimax(self,space, current_game, token):
         """int, Game, str -> int
            Implementation of the minimax algorithm.
@@ -86,7 +86,7 @@ class AI(object):
                 return scores[current_game.winner()]
             else:
                 values = [self.minimax(move, current_game, players[token]) for move in possible_moves]
-                if token == 'o':
+                if token == self.token:
                     return min(values)
                 else:
                     return max(values)
@@ -109,10 +109,9 @@ def capture_input(statement, options, response=0):
     """str, iterable of ints -> int
        Assumes 0 is outside range of 
        options"""
-
     while response not in options:
         try:
-            response = input(statement)
+            response = int(raw_input(statement))
         except:
             continue
     return response
@@ -156,4 +155,12 @@ def game_play(x):
         
 if __name__ == "__main__":
     print "Welcome to Tic Tac Toe"
-    game_play(capture_input("Would you like to go first or second: [1,2] ", (1,2)))
+    play = True
+    while play:
+        game_play(capture_input("Would you like to go first or second: [1,2] ", (1,2)))
+        play_dict = {"y": True, "n": False}
+        key = ''
+        while key not in play_dict:
+            key = raw_input("Would you like to play again? y/n: ")
+            play = play_dict[key]
+    
