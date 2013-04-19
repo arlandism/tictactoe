@@ -1,8 +1,8 @@
 # Tic Tac Toe v2
 # Arlandis Lawrence
 
-players = {'x':'o', 'o':'x'}
-scores = {'x':-1,'o':1, None:0}
+PLAYERS = {'x':'o', 'o':'x'}
+SCORES = {'x':-1,'o':1, None:0}
 
 class Game(object):
 
@@ -83,9 +83,9 @@ class AI(object):
             current_game.board[space] = token
             possible_moves = current_game.generate_moves()
             if current_game.game_over():
-                return scores[current_game.winner()]
+                return SCORES[current_game.winner()]
             else:
-                values = [self.minimax(move, current_game, players[token]) for move in possible_moves]
+                values = [self.minimax(move, current_game, PLAYERS[token]) for move in possible_moves]
                 if token == self.token:
                     return min(values)
                 else:
